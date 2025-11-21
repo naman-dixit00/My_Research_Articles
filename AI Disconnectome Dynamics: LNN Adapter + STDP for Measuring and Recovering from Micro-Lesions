@@ -1,0 +1,95 @@
+Researched By Naman Dixit 
+Author and Owner : Naman Dixit 
+Declared on : 21-11-2025 
+
+# Title (single line)
+
+**Real-time AI Disconnectome Dynamics: LNN Adapter + STDP for Measuring and Recovering from Micro-Lesions**
+
+---
+
+# Elevator (1 line)
+
+Treat small corrupted input streams as “micro-lesions” that create representational wiring damage; instrument a frozen language model with a small Liquid Neural Network (LNN) adapter running gated online Synaptic Time-Dependent Plasticity (STDP) to measure, detect, and evaluate recovery trajectories in real time.
+
+---
+
+# Abstract (compact, 3–4 sentences)
+
+We introduce **AI Disconnectome Dynamics**, a neuroscience-inspired framework to study how brief, targeted corrupted inputs (micro-lesions) propagate damage through a model’s internal representational wiring. A frozen backbone LM is augmented with a small **LNN adapter** whose weights are the only plastic parameters and evolve online under a gated STDP rule. We use STDP both as an **adaptation mechanism** and as a **temporal probe** to measure long-term damage traces (memory of corruption) across a token-arrival time axis. Using safe, synthetic semantic-contradiction corruption, we quantify damage points, disconnectome trajectories, and whether STDP promotes self-recovery or accelerates collapse.
+
+---
+
+# Key contributions (bullet)
+
+* Define the notion **AI Disconnectome Dynamics** — a structural, temporal measure of damage inside model representations.
+* Propose an LNN adapter + **gated online STDP** protocol for real-time adaptation and measurement.
+* Map tractography/disconnectome concepts → **representational connectivity graphs** (CKA / similarity graphs) and edge-wise damage metrics.
+* Provide safe experimental protocol (semantic contradictions / label flips) and evaluation metrics that reveal latent vulnerabilities invisible to snapshot accuracy.
+
+---
+
+# Precise framing & ownership
+
+* **Owner / first author:** *You* (idea, framing, experiment design).
+* **Code / infra:** implementation artifact (Colab notebooks) — supporting reproducible experiments.
+* Use modern terminology: *frozen LM backbone*, *LNN adapter (continuous-time recurrent)*, *STDP (mathematical update rule)*, *representational connectivity / CKA*.
+
+---
+
+# Methods — formal summary (ready to paste)
+
+1. **Time axis (ground truth):** token arrival timestamps (external input stream). LNN continuous dynamics interpolate this axis; STDP updates use the token timestep as dt.
+2. **Architecture:** frozen LM backbone → adapter insertion point (post-embedding or pre-head). Adapter = small LNN of hidden dimension H (≈ 64–256). Only adapter weights W (and optionally U input weights) are plastic.
+3. **Plasticity rule (STDP, rate proxy):**
+
+   * Maintain decaying pre/post traces (p_i(t), q_j(t)).
+   * At each token arrival:
+     (\Delta W_{ij} = \eta\big(A_+,p_i(t),\sigma(x_j(t)) - A_-,\sigma(x_i(t)),q_j(t)\big) - \lambda W_{ij}), clipped to range.
+   * Plasticity applied only if **gate** (g(t)=1) (anomaly detector), else zero.
+4. **Corruption injection:** safe, synthetic **semantic contradictions** (or label flips on vision tasks) inserted into the input stream at controlled times/ratios (e.g., 0.5–5%).
+5. **Representational disconnectome:** build a representational connectivity graph (G(t)) where nodes = chosen activations (adapter / LM layers) and edges = similarity/interaction measures (CKA, cosine, or partial correlation). Track ΔG(t) over token time to produce edge-wise disconnection probabilities and damage trajectories.
+
+---
+
+# Experimental design (concrete)
+
+**Base dataset:** synthetic text facts or public dataset (no harmful content).
+**Conditions (minimum):**
+
+* Baseline: no adapter (frozen LM).
+* Adapter with plasticity OFF (static adapter).
+* Adapter with STDP always-on.
+* Adapter with STDP **gated** (anomaly gating).
+  **Lesion styles:** semantic contradictions injected at times; also experiment with small % label flips for classification analogue.
+  **Parameter sweep:** lesion rate (.5%, 1.3%, 3%), STDP A+/A- ratios, gating thresholds, adapter size H.
+  **Trials:** multiple seeds (≥10) per condition for confidence intervals.
+
+---
+
+# Metrics & visualizations
+
+* **Primary damage point signal:** representation drift (CKA distance) as the main damage detector (recommended).
+* **Secondary signals:** confidence collapse (softmax max drop), loss spikes.
+* **Disconnectome outputs:** edge-wise percent loss over time, node vulnerability, global efficiency (graph metric) as functions of token time.
+* **Plots:** time series around corruption events, heatmaps of G( t ) difference (baseline vs t), recovery fraction curves, CKA matrices before/after, sample adapter weight snapshots.
+
+---
+
+# Expected findings / hypotheses (to test)
+
+* Low corruption rates (≤ ~1.3%) produce subtle representational drift that accumulates; snapshot accuracy may remain unchanged while disconnectome shows damage.
+* STDP without gating may lead to maladaptive potentiation or runaway drift depending on A+/A- balance; gated STDP leads to better targeted recovery and lower false positives.
+* There exist parameter regimes (homeostatic scaling + moderate A+) where adapter STDP fosters partial recovery of global efficiency.
+
+---
+
+# Ethical & safety controls (must include)
+
+* Use only synthetic / public non-sensitive datasets; **no** real user data.
+* Corruption limited to semantic contradictions and label flips (non-harmful).
+* Experiments run offline in sandboxed Colab environments.
+* Include an ethics statement in repo and report describing safe datasets, no exploit code released, and rollback checkpoints.
+* Do **not** release any dataset or scripts that enable poisoning of deployed user-facing systems.
+
+---
